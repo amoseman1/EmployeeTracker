@@ -16,7 +16,7 @@ const connection = mysql.createConnection({
 connection.connect((err) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}\n`);
-    // call start function startMenu();
+    startMenu();
 });
 
 //functions for command line prompts and data queries
@@ -28,12 +28,12 @@ const startMenu = () => {
             message: 'What would you like to do?',
             choices: [
                 'View all Employees',
-                'View all  Employees by Department',
-                'View all  Employees by Role',
+                'View all Departments',
+                'View all Roles',
                 'Add an Employee',
                 'Add a Department',
                 'Add a Role',
-                'Update Employee Roles',
+                'Update Employee Role',
                 'Exit',
             ],
         })
@@ -43,12 +43,12 @@ const startMenu = () => {
                     viewEmployees();
                     break;
 
-                case 'View all  Employees by Department':
-                    employeesByDept();
+                case 'View all Departments':
+                    viewDepts();
                     break;
 
-                case 'View all  Employees by Role':
-                    employeesByRole();
+                case 'View all Roles':
+                    viewRoles();
                     break;
 
                 case 'Add an Employee':
@@ -63,7 +63,7 @@ const startMenu = () => {
                     addRole();
                     break;
 
-                case 'Update Employee Roles':
+                case 'Update Employee Role':
                     updateRole();
                     break;
 
@@ -78,54 +78,83 @@ const startMenu = () => {
         });
 };
 
-const viewEmployees = () => {
+// const viewEmployees = () => {
+//     inquirer.prompt(
+//         {
+//             type: 'list',
+//             name: 'employee',
+//             message: 'Which employee would you like to view?',
+//             choices: []  //dont know how to input employee list here from employee data
+//         }
+//     )
+//         .then((answer) => {
+//             const query = '';
+//             connection.query(query,
+//                 {
+
+//                 }, (err, res) => {
+//                     //forloop
+//                     //start menu over again
+//                     startMenu();
+//                 })
+
+//         })
+// };
+
+
+//worked on with tutor
+const viewDepts = () => {
     inquirer.prompt(
-        [{}]
+        {
+            type: 'list',
+            name: 'department',
+            message: 'Select the department you would like to view.',
+            choices: ['Sales', 'Engineering', 'Finance', 'Legal']
+        }
     )
-        .then((answer) => {
-            const query = '';
-            connection.query(query,
-                {
+        .then((answer) => { //listing all columns we want info from(from diff tables)
+            connection.query('SELECT id FROM department WHERE ?', {
+                dept_name: answer.department
+            }, (err, departmentId) => {
+                if (err) { throw err; } //departmentId is the res
 
-                }, (err, res) => {
-                    //forloop
-                    //start menu over again
+                let query = 'SELECT employee.first_name, employee.last_name, empRole.title, department.dept_name FROM employee LEFT JOIN empRole ON employee.role_id = role.id '
+                query += 'LEFT JOIN department ON empRole.department_id = ?';
+                connection.query(query, departmentId, (err, res) => { //need error consoled
+                    if (err) throw err;
+                    console.log(res);
+                    console.table(res);
                     startMenu();
-                })
+                });
+            });
 
-        })
+        });
 };
 
-const employeesByDept = () => {
+const viewRoles = () => {
     inquirer.prompt(
-        [{}]
+        [{
+            type: 'list',
+            name: 'role',
+            message: 'Select the role you would like to view.',
+            choices: ['Sales Lead',
+                'Salesperson',
+                'Lead Engineer',
+                'Software Engineer',
+                'Account Manager',
+                'Accountant',
+                'Legal Team Lead']
+        }]
     )
         .then((answer) => {
-            const query = '';
+            let query = 'SELECT employee.first_name, employee.last_name, empRole.title, department.dept_name FROM employee LEFT JOIN empRole on employee.role_id = role.id';
             connection.query(query,
                 {
+                    role_id: answer.role
 
                 }, (err, res) => {
-                    //forloop
-                    //start menu over again
-                    startMenu();
-                })
-
-        })
-};
-
-const employeesByRole = () => {
-    inquirer.prompt(
-        [{}]
-    )
-        .then((answer) => {
-            const query = '';
-            connection.query(query,
-                {
-
-                }, (err, res) => {
-                    //forloop
-                    //start menu over again
+                    if (err) throw err;
+                    console.table(res);
                     startMenu();
                 })
 
@@ -133,17 +162,40 @@ const employeesByRole = () => {
 };
 
 const addEmployee = () => {
-    inquirer.prompt(
-        [{}]
-    )
-        .then((answer) => {
-            const query = '';
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'first_name',
+            message: "What is the employee you would like to add's first name?"
+        },
+        {
+            type: 'input',
+            name: 'last_name',
+            message: "What is the employee you would like to add's last name?"
+        },
+        {
+            type: 'list',
+            name: 'role_id',
+            message: "What is this employee's role?",
+            choices: ['Sales Lead',
+                'Salesperson',
+                'Lead Engineer',
+                'Software Engineer',
+                'Account Manager',
+                'Accountant',
+                'Legal Team Lead']
+        }])
+        .then(({ first_name, last_name, role_id }) => {
+            let query = 'INSERT INTO employee SET ?';
             connection.query(query,
                 {
-
+                    first_name,
+                    last_name,
+                    role_id
                 }, (err, res) => {
-                    //forloop
-                    //start menu over again
+                    if (err) throw err;
+                    console.log(`You have successfully added an employee.`)
+                    console.table(res);
                     startMenu();
                 })
 
@@ -187,6 +239,7 @@ const addRole = () => {
 };
 
 const updateRole = () => {
+    //ice cream CRUD activity
     inquirer.prompt(
         [{}]
     )
