@@ -76,22 +76,133 @@ const startMenu = () => {
                     break;
             }
         });
-
-    const  = () => {
-        inquirer.prompt(
-            [{}]
-        )
-            .then((answer) => {
-                const query = '';
-                connection.query(query,
-                    {
-
-                    }, (err, res) => {
-                        //forloop
-                        //start menu over again
-                        startMenu();
-                    })
-
-            })
-    }
 };
+
+const viewEmployees = () => {
+    inquirer.prompt(
+        [{}]
+    )
+        .then((answer) => {
+            const query = '';
+            connection.query(query,
+                {
+
+                }, (err, res) => {
+                    //forloop
+                    //start menu over again
+                    startMenu();
+                })
+
+        })
+};
+
+const employeesByDept = () => {
+    inquirer.prompt(
+        [{}]
+    )
+        .then((answer) => {
+            const query = '';
+            connection.query(query,
+                {
+
+                }, (err, res) => {
+                    //forloop
+                    //start menu over again
+                    startMenu();
+                })
+
+        })
+};
+
+const employeesByRole = () => {
+    inquirer.prompt(
+        [{}]
+    )
+        .then((answer) => {
+            const query = '';
+            connection.query(query,
+                {
+
+                }, (err, res) => {
+                    //forloop
+                    //start menu over again
+                    startMenu();
+                })
+
+        })
+};
+
+const addEmployee = () => {
+    inquirer.prompt(
+        [{}]
+    )
+        .then((answer) => {
+            const query = '';
+            connection.query(query,
+                {
+
+                }, (err, res) => {
+                    //forloop
+                    //start menu over again
+                    startMenu();
+                })
+
+        })
+};
+
+const addDept = () => {
+    inquirer.prompt(
+        [{}]
+    )
+        .then((answer) => {
+            const query = '';
+            connection.query(query,
+                {
+
+                }, (err, res) => {
+                    //forloop
+                    //start menu over again
+                    startMenu();
+                })
+
+        })
+};
+
+const addRole = () => {
+    inquirer.prompt(
+        [{}]
+    )
+        .then((answer) => {
+            const query = '';
+            connection.query(query,
+                {
+
+                }, (err, res) => {
+                    //forloop
+                    //start menu over again
+                    startMenu();
+                })
+
+        })
+};
+
+const updateRole = () => {
+    inquirer.prompt(
+        [{}]
+    )
+        .then((answer) => {
+            const query = '';
+            connection.query(query,
+                {
+
+                }, (err, res) => {
+                    //forloop
+                    //start menu over again
+                    startMenu();
+                })
+
+        })
+};
+
+
+
