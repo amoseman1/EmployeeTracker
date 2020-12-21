@@ -1,0 +1,92 @@
+//queries
+
+View All Employees -- SELECT  Left Join to get your data
+View All Employees By Department
+Add Employee -- INSERT INTO
+Update Employee Role -- UPDATE SET
+View All Roles -- SELECT Left Join
+Add Role -- INSERT INTO
+View All Departments -- SELECT Left Join
+Add Department - INSERT INTO
+
+- node, inquirer, and mysql --> Content Management System for a company's employee's
+
+1.start function - inquirer.prompt
+   'What would you like to do?'
+   - View all Employees
+   - View all  Employees by Department
+   - View all  Employees by Role
+   - Add an Employee
+   - Add a Department
+   - Add a Role
+   - Update employee Roles
+   - Exit
+   .then --> switch option = function for next question and query
+     includes, exit, and default
+   
+  * add employee- first name, last name, employee role?
+  employee role - choices [Sales Lead, Salesperson, Lead Engineer, Software Engineer, Account Manager, Accountant, Legal Team Lead]
+  * remove employee - which employee would you like to remove 
+   
+   
+   .then(action) - connection.query ("SELECT...)
+
+
+
+   //database --
+   * **department**:
+
+  * **id** - INT PRIMARY KEY
+  * **name** - VARCHAR(30) to hold department name
+
+* **role**:
+
+  * **id** - INT PRIMARY KEY
+  * **title** -  VARCHAR(30) to hold role title
+  * **salary** -  DECIMAL to hold role salary
+  * **department_id** -  INT to hold reference to department 
+  role belongs to
+
+* **employee**:
+
+  * **id** - INT PRIMARY KEY
+  * **first_name** - VARCHAR(30) to hold employee first name
+  * **last_name** - VARCHAR(30) to hold employee last name
+  * **role_id** - INT to hold reference to role employee has
+  * **manager_id** - INT to hold reference to another employee 
+  that manages the employee being Created. This field may be null if the employee has no manager
+
+
+
+***************************************
+DROP DATABASE IF EXISTS company_DB;
+CREATE DATABASE company_DB;
+
+USE company_DB;
+
+CREATE TABLE department (
+
+ id INT PRIMARY KEY,
+dept_name VARCHAR(30) 
+
+);
+CREATE TABLE empRole (
+
+  id  INT PRIMARY KEY,
+  title   VARCHAR(30) ,
+  salary   DECIMAL(10,4),
+  department_id   INT 
+);
+CREATE TABLE employee (
+
+  id  INT PRIMARY KEY,
+  first_name  VARCHAR(30),
+  last_name  VARCHAR(30), 
+  role_id  INT NULL,
+  manager_id  INT NULL
+);
+
+SELECT * FROM department;
+SELECT * FROM empRole;
+SELECT * FROM employee;
+***********************************
