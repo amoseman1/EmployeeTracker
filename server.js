@@ -20,7 +20,7 @@ connection.connect((err) => {
 });
 
 //functions for command line prompts and data queries
-const startMenu = () => { // this works 
+const startMenu = () => {
     inquirer
         .prompt({
             name: 'action',
@@ -78,32 +78,18 @@ const startMenu = () => { // this works
         });
 };
 
-const viewEmployees = () => { //havent updated
-    inquirer.prompt(
-        {
-            type: 'list',
-            name: 'employee',
-            message: 'Which employee would you like to view?',
-            choices: []  //dont know how to input employee list here from employee data
-        }
-    )
-        .then((answer) => {
-            const query = '';
-            connection.query(query,
-                {
-
-                }, (err, res) => {
-                    //forloop
-                    //start menu over again
-                    startMenu();
-                })
-
-        })
+//this works
+const viewEmployees = () => {
+    let query = 'SELECT employee.first_name, employee.last_name, empRole.title, empRole.salary, department.dept_name FROM employee LEFT JOIN empRole ON employee.role_id = empRole.id LEFT JOIN department ON empRole.department_id = department.id'
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.log(res);
+        console.table(res);
+        startMenu();
+    })
 };
 
-
-//worked on with tutor
-const viewDepts = () => { //ERR -id is ambiguous in on clause
+const viewDepts = () => { //ERR - column id is ambiguous in on clause 
     inquirer.prompt(
         {
             type: 'list',
@@ -112,108 +98,99 @@ const viewDepts = () => { //ERR -id is ambiguous in on clause
             choices: ['Sales', 'Engineering', 'Finance', 'Legal']
         }
     )
-        .then((answer) => { //listing all columns we want info from(from diff tables)
-            connection.query('SELECT id FROM department WHERE ?', {
+        .then((answer) => {
+            connection.query('SELECT department.id FROM department WHERE ?', {
                 dept_name: answer.department
             }, (err, departmentId) => {
-                if (err) { throw err; } //departmentId is the res
+                if (err) { throw err }; //departmentId is the res
 
                 let query = 'SELECT employee.first_name, employee.last_name, empRole.title, department.dept_name FROM employee LEFT JOIN empRole ON employee.role_id = empRole.id '
-                query += 'LEFT JOIN department ON empRole.department_id = ?';
-                connection.query(query, departmentId, (err, res) => {
-                    if (err) throw err;
-                    console.log(res);
-                    console.table(res);
-                    startMenu();
-                });
+                query += 'LEFT JOIN department ON empRole.department_id = ?;';
+                console.log(query, departmentId)
+                // connection.query(query, departmentId, (err, res) => {
+                //     if (err) throw err;
+                //     console.log(res);
+                //     console.table(res);
+                //     startMenu();
+                // });
             });
 
         });
 };
 
+//this works
 const viewRoles = () => {
-    inquirer.prompt(
-        [{
-            type: 'list',
-            name: 'role',
-            message: 'Select the role you would like to view.',
-            choices: ['Sales Lead',
-                'Salesperson',
-                'Lead Engineer',
-                'Software Engineer',
-                'Account Manager',
-                'Accountant',
-                'Legal Team Lead']
-        }]
-    )
-        .then((answer) => {
-            let query = 'SELECT employee.first_name, employee.last_name, empRole.title, department.dept_name FROM employee LEFT JOIN empRole on employee.role_id = role.id';
-            connection.query(query,
-                {
-                    role_id: answer.role
-
-                }, (err, res) => {
-                    if (err) throw err;
-                    console.table(res);
-                    startMenu();
-                })
-
+    let query = 'SELECT empRole.id, empRole.title, department.dept_name, empRole.salary FROM empRole LEFT JOIN department ON empRole.department_id = department.id';
+    connection.query(query,
+        (err, res) => {
+            if (err) throw err;
+            console.table(res);
+            startMenu();
         })
 };
 
-const addEmployee = () => { //need a way to turn role into role_id(INT)
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'first_name',
-            message: "What is the employee you would like to add's first name?"
-        },
-        {
-            type: 'input',
-            name: 'last_name',
-            message: "What is the employee you would like to add's last name?"
-        },
-        {
-            type: 'list',
-            name: 'role_id',
-            message: "What is this employee's role?",
-            choices: ['Sales Lead',
-                'Salesperson',
-                'Lead Engineer',
-                'Software Engineer',
-                'Account Manager',
-                'Accountant',
-                'Legal Team Lead']
-        }])
-        .then(({ first_name, last_name, role_id }) => {
-            let query = 'INSERT INTO employee SET ?';
-            connection.query(query,
-                {
-                    first_name,
-                    last_name,
-                    role_id
-                }, (err, res) => {
-                    if (err) throw err;
-                    console.log(`You have successfully added an employee.`)
-                    console.table(res);
-                    startMenu();
-                })
+//this works
+const addEmployee = () => {
+    let roleChoices;
+    connection.query('SELECT id, title FROM empRole', (err, res) => {
+        if (err) throw err;
+        //console.log(res);
+        roleChoices = res.map(({ id, title }) => {
+            return {
+                name: title,
+                value: id
+            }
 
         })
+        // console.log(roleChoices);
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'first_name',
+                message: "What is the employee you would like to add's first name?"
+            },
+            {
+                type: 'input',
+                name: 'last_name',
+                message: "What is the employee you would like to add's last name?"
+            },
+            {
+                type: 'list',
+                name: 'role_id',
+                message: "What is this employee's role?",
+                choices: roleChoices
+            }])
+            .then(({ first_name, last_name, role_id }) => {
+                let query = 'INSERT INTO employee SET ?';
+                connection.query(query,
+                    {
+                        first_name,
+                        last_name,
+                        role_id
+                    }, (err, res) => {
+                        if (err) throw err;
+                        console.log(`You have successfully added ${first_name} ${last_name} as an employee.`)
+                        console.log(res);
+                        startMenu();
+                    })
+
+            });
+    })
 };
 
-const addDept = () => { //this works
+
+//this works
+const addDept = () => {
     inquirer.prompt(
         {
             type: 'input',
             name: 'dept_name',
             message: 'What department would you like to add?'
-        }
-    )
+        })
         .then(({ dept_name }) => {
             connection.query('SELECT id, dept_name FROM department', (err, res) => {
                 if (err) throw err;
-                console.log(res);
+                //console.log(res);
             });
             connection.query('INSERT INTO department SET ?',
                 {
@@ -223,12 +200,11 @@ const addDept = () => { //this works
                     if (err) throw err;
                     console.log(`Department ${dept_name} has been added`);
                     startMenu();
-
                 });
         });
 };
 
-const addRole = () => { //not functional
+const addRole = () => { //make a query to find department, 
     inquirer.prompt(
         {
             type: 'input',
@@ -250,7 +226,7 @@ const addRole = () => { //not functional
         .then(({ title, salary, dept_id }) => {
             connection.query('SELECT id, dept_name FROM department', (err, res) => {
                 if (err) throw err;
-                console.log(res);
+                //console.log(res);
                 // const deptArr = res.map((deptIt) => {
                 //     return {
                 //         name: deptIt.dept_name,
@@ -268,30 +244,43 @@ const addRole = () => { //not functional
                         console.table(res);
                         startMenu();
                     })
-
-
-
             );
-
         });
     // });
 };
 
 const updateRole = () => {
-    //ice cream CRUD activity
     inquirer.prompt(
-        [{}]
-    )
-        .then((answer) => {
-            const query = '';
+        [{
+            type: 'input',
+            name: 'employee',
+            message: "Which employee's role would you like to update?"
+        },
+        {
+            type: 'list',
+            name: 'role_id',
+            message: 'Choose a new role for the employee.',
+            choices: ['Sales Lead',
+                'Salesperson',
+                'Lead Engineer',
+                'Software Engineer',
+                'Account Manager',
+                'Accountant',
+                'Legal Team Lead']
+
+        }])  // ERR -UnhandledPromiseRejectionWarning: TypeError: argument callback must be a function when provided
+        .then(({ employee, role_id }) => {
+            let query = 'UPDATE employee SET ? WHERE ?';
             connection.query(query,
                 {
+                    employee
+                },
+                {
+                    role_id
 
                 }, (err, res) => {
-                    //forloop
-                    //start menu over again
+                    console.log(`${res.affectedRows} employee ${employee} was updated to this role: ${role_id}`);
                     startMenu();
-                })
-
-        })
+                });
+        });
 };
